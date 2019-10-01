@@ -40,23 +40,17 @@ object ReprojectRasterExtent {
    * @see [[reprojectedGridForCellSize]] defined below
    */
   def apply[N: Integral](ge: GridExtent[N], transform: Transform, resampleTarget: ResampleTarget): GridExtent[N] = {
-    val extent = ge.extent
-    val newExtent = extent.reprojectAsPolygon(transform, 0.001).extent
+    // if ResampleTarget is TargetGridExtent, we won't need to compute this expensive thing
+    lazy val newExtent = ge.extent.reprojectAsPolygon(transform, 0.001).extent
 
     resampleTarget match {
       case DefaultTarget =>
         val cs = cellSizeHeuristic(ge, newExtent)
         reprojectedGridForCellSize(cs, newExtent)
 
-      case TargetCellSize(cs) =>
-        reprojectedGridForCellSize(cs, newExtent)
-
-      case target =>
-        // TODO: this doesn't seem correct.
-        // I think we should go through with the huristic and pass it through resampleTarget
-        val cols = Integral[N].fromDouble(newExtent.width / ge.cellSize.width + 0.5)
-        val rows = Integral[N].fromDouble(newExtent.height / ge.cellSize.height + 0.5)
-        target(new GridExtent(newExtent, cols, rows))
+      case resampleTarget =>
+        // remaining options of ResampleTarget will redefine col/row count
+        resampleTarget(new GridExtent(newExtent, 1, 1))
     }
   }
 
