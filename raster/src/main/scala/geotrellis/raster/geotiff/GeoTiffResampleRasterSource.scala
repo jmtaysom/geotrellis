@@ -75,12 +75,7 @@ class GeoTiffResampleRasterSource(
     new GeoTiffReprojectRasterSource(dataPath, targetCRS, resampleTarget, method, strategy, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
-          ReprojectRasterExtent(
-            baseGridExtent,
-            transform,
-            Some(resampleTarget)
-            //Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
-          )
+          ReprojectRasterExtent(baseGridExtent, transform, resampleTarget)
 
         resampleTarget match {
           case targetGridExtent: TargetGridExtent[_] => targetGridExtent.gridExtent.toGridType[Long]

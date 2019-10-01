@@ -85,7 +85,7 @@ trait MosaicRasterSource extends RasterSource {
     MosaicRasterSource(
       sources map { _.reproject(targetCRS, resampleTarget, method, strategy) },
       crs,
-      gridExtent.reproject(this.crs, targetCRS, Reproject.Options.DEFAULT.copy(method = method)),
+      gridExtent.reproject(this.crs, targetCRS),
       name
     )
 
@@ -94,11 +94,8 @@ trait MosaicRasterSource extends RasterSource {
        _.read(extent, bands) }
     rasters.map { raster =>
       val r = raster.get
-      println(r.extent)
-      println(r.tile.band(0).asciiDraw())
     }
     var red = rasters.reduce
-    println(red.get.tile.band(0).asciiDraw())
     red
   }
 
@@ -127,8 +124,6 @@ object MosaicRasterSource {
         val lr = l.resample(TargetGridExtent(targetRE))
         val rr = r.resample(TargetGridExtent(targetRE))
 
-        println(s"lr: ${lr.tile.band(0).asciiDraw()}")
-        println(s"rr: ${rr.tile.band(0).asciiDraw()}")
         result
       }
     }
